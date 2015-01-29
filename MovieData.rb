@@ -13,42 +13,28 @@ class MovieData
     end
  
     def initialize_one(folder_name)
-        @training_data = Array.new
-        @user_ratings = Hash.new
-        @movies = Hash.new
-        @similarity_matrix = Hash.new
-        @test_results = Array.new
-        
-        if folder_name == "ml-100k"
-            file_path = File.join(folder_name, "u.data")
-            my_file = open(file_path, 'r')
-        else
-            puts "This folder doesn't exist try again."
+
+        training_data = Array.new
+        file_path = File.join(folder_name, "u.data")
+        my_file = open(file_path, 'r')
+        my_file.each do |record|
+            each_line = record.split(' ')
+            training_data.push(each_line)
         end
-            my_file.each do |record|
-                each_line = record.split(' ')
-                @training_data.push(each_line)
-            end
-            create_my_tables(@training_data)
-        
+        create_my_tables(training_data) 
     end
 
     
     def initialize_two(folder_name, file_name)
-        @training_data = Array.new
-        @user_ratings = Hash.new
-        @movies = Hash.new
-        @similarity_matrix = Hash.new
-        @test_results = Array.new
 
-        training_data = []
+        training_data = Array.new
         file_path = File.join(folder_name, file_name)
         my_file = open(file_path, 'r')
         my_file.each do |record|
             each_line = record.split(' ')
-            @training_data.push(each_line)
+            training_data.push(each_line)
         end
-        create_my_tables(@training_data)
+        create_my_tables(training_data)
     end
 
 
@@ -57,25 +43,28 @@ class MovieData
         # each of these structures is an hash of arrays
         # @user_ratings is a hash of users vs. an array of ratings.
         # @movies is a hash of movies vs. an array of ratings.
+
+        @user_ratings = Hash.new
+        @movies = Hash.new
+        @similarity_matrix = Hash.new
+        @test_results = Array.new
+
         user_arrays = 0
         movie_arrays = 0
         training_data.each do |entry|
-            if @user_ratings[entry[0].to_i].class != Array
-                @user_ratings[entry[0].to_i] = []
-                user_arrays += 1
+            if @user_ratings[entry[0].to_i] == nil
+                @user_ratings[entry[0].to_i] = Array.new
             end
-            if @movies[entry[1].to_i].class != Array
-                @movies[entry[1].to_i] = []
-                movie_arrays += 1
+            if @movies[entry[1].to_i] == nil
+                @movies[entry[1].to_i] = Array.new
             end
             @user_ratings[entry[0].to_i][entry[1].to_i] = entry[2].to_i
             @movies[entry[1].to_i][entry[0].to_i] = entry[2].to_i
         end 
     end
-
+    
     
     def rating(user, movie)
-        #puts "Inside rating function: #{user}, #{movie}, #{@user_ratings[user][movie].class}"
         # returns the rating that user has given for a particular movie
         rating = @user_ratings[user][movie]
         if rating == nil
@@ -103,13 +92,11 @@ class MovieData
         total_similarity = 0.0
         base = 0.0
         viewers.each do |viewer|
-            if @similarity_matrix[user] == nil && @similarity_matrix[viewer] == nil
-                @similarity_matrix[viewer] = Array.new
+            if @similarity_matrix[user] == nil
                 @similarity_matrix[user] = Array.new
-            elsif @similarity_matrix[viewer] == nil
-                @similarity_matrix[viewer] = []
-            elsif @similarity_matrix[user] == nil
-                @similarity_matrix[user] == nil
+            end
+            if @similarity_matrix[viewer] == nil
+                @similarity_matrix[viewer] = Array.new
             end
 
             if @similarity_matrix[user][viewer] == nil

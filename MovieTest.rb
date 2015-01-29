@@ -19,10 +19,10 @@ class MovieTest
         summation = 0
         test_results.each do |list|
             count += 1
-            summation += (list[2] - list[3]) ** 2
+            summation += ((list[2] - list[3]) ** 2) ** 0.5
         end
 
-        return (summation ** 0.5) / test_results.length
+        return summation / test_results.length
     end
 
     
